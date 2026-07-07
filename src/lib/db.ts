@@ -10,7 +10,10 @@ function createPool() {
   if (!connectionString) {
     throw new Error("DATABASE_URL is not set");
   }
-  return new Pool({ connectionString });
+  // Neon terminates TLS with a certificate chain that serverless runtimes
+  // don't always have the intermediate CA for; encrypt without strict
+  // verification rather than fail the handshake.
+  return new Pool({ connectionString, ssl: { rejectUnauthorized: false } });
 }
 
 // Reused across HMR reloads in dev and warm serverless invocations in prod.
