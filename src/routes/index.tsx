@@ -22,13 +22,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, FileText, Trash2, Printer, Wheat } from "lucide-react";
+import { Plus, FileText, Trash2, Printer } from "lucide-react";
 import {
   type Evidencia,
   createEvidencia,
   deleteEvidencia,
   listEvidencias,
 } from "@/lib/evidencias";
+import nutrimilhoLogo from "@/assets/nutrimilho-logo.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -188,23 +189,11 @@ function Index() {
   );
 }
 
-function NutrimilhoLogo({ className }: { className?: string }) {
-  return (
-    <div
-      className={`flex items-center justify-center rounded-md bg-brand text-brand-foreground ${className ?? ""}`}
-      aria-label="Nutrimilho"
-      role="img"
-    >
-      <Wheat className="h-1/2 w-1/2" />
-    </div>
-  );
-}
-
 function TopBar({ onNew }: { onNew: () => void }) {
   return (
     <header className="border-b bg-white shadow-sm print:hidden">
       <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
-        <NutrimilhoLogo className="h-9 w-9 shrink-0" />
+        <img src={nutrimilhoLogo} alt="Nutrimilho" className="h-9 w-auto shrink-0" />
         <div className="ml-2 hidden min-w-0 border-l pl-3 sm:block">
           <p className="text-sm font-semibold text-foreground">
             Evidências de Auditoria de BPF
@@ -277,7 +266,7 @@ function ReportSheet({
       {/* Header table */}
       <div className="grid grid-cols-[140px_1fr_180px] border-b-2 border-border text-sm">
         <div className="flex items-center justify-center border-r-2 border-border bg-white p-3">
-          <NutrimilhoLogo className="h-10 w-10" />
+          <img src={nutrimilhoLogo} alt="Nutrimilho" className="h-10 w-auto" />
         </div>
         <div className="flex flex-col justify-center border-r-2 border-border p-3">
           <div className="text-center text-sm font-bold uppercase tracking-wide">
