@@ -116,10 +116,10 @@ function Index() {
   }
 
   return (
-    <div className="min-h-screen bg-background print:bg-white">
+    <div className="flex min-h-screen flex-col bg-background print:bg-white">
       <TopBar onNew={() => setOpen(true)} />
 
-      <main className="mx-auto max-w-6xl px-4 py-6 print:max-w-none print:px-0 print:py-0">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 print:max-w-none print:px-0 print:py-0">
         <div className="mb-4 flex flex-wrap items-center gap-3 print:hidden">
           <div className="flex items-center gap-2">
             <Label className="text-sm text-muted-foreground">Filtrar setor</Label>
@@ -185,6 +185,7 @@ function Index() {
         )}
       </main>
 
+      <Footer />
     </div>
   );
 }
@@ -192,7 +193,7 @@ function Index() {
 function TopBar({ onNew }: { onNew: () => void }) {
   return (
     <header className="border-b bg-white shadow-sm print:hidden">
-      <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-3">
         <img src={nutrimilhoLogo} alt="Nutrimilho" className="h-9 w-auto shrink-0" />
         <div className="ml-2 hidden min-w-0 border-l pl-3 sm:block">
           <p className="text-sm font-semibold text-foreground">
@@ -202,25 +203,33 @@ function TopBar({ onNew }: { onNew: () => void }) {
             Registro de qualidade — Boas Práticas de Fabricação
           </p>
         </div>
-        <div className="ml-auto hidden items-center gap-2 sm:flex">
+        <div className="ml-auto flex items-center gap-2">
           <Button
             size="sm"
             variant="outline"
             onClick={() => window.print()}
-            className="gap-1"
+            className="gap-1 px-2 sm:px-3"
           >
-            <Printer className="h-4 w-4" /> PDF
+            <Printer className="h-4 w-4" /> <span className="hidden sm:inline">PDF</span>
           </Button>
           <Button
             size="sm"
             onClick={onNew}
-            className="bg-[color:var(--accent-yellow)] text-foreground hover:brightness-95"
+            className="bg-[color:var(--accent-yellow)] text-foreground hover:brightness-95 px-2 sm:px-3"
           >
-            <Plus className="mr-1 h-4 w-4" /> Nova evidência
+            <Plus className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Nova evidência</span>
           </Button>
         </div>
       </div>
     </header>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="border-t bg-white py-4 text-center text-xs text-muted-foreground print:hidden">
+      © 2026 Nutrimilho - (Novaes Tech) | Todos os direitos reservados
+    </footer>
   );
 }
 
