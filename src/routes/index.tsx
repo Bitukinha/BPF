@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,7 +22,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, FileText, Trash2, Printer } from "lucide-react";
+import { Plus, FileText, Trash2, Printer, Camera, Upload } from "lucide-react";
 import {
   type Evidencia,
   createEvidencia,
@@ -372,6 +372,8 @@ function NewEvidenceDialog({ onAdd }: { onAdd: (e: Evidencia) => void }) {
   const [nc, setNc] = useState("");
   const [ac, setAc] = useState("");
   const [foto, setFoto] = useState<string | undefined>();
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   function onFile(f: File | undefined) {
     if (!f) return setFoto(undefined);
@@ -471,12 +473,41 @@ function NewEvidenceDialog({ onAdd }: { onAdd: (e: Evidencia) => void }) {
         </div>
         <div className="grid gap-1.5">
           <Label>Foto (opcional)</Label>
-          <Input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={(e) => onFile(e.target.files?.[0])}
-          />
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => cameraInputRef.current?.click()}
+            >
+              <Camera className="mr-1.5 h-4 w-4" />
+              Tirar foto
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => galleryInputRef.current?.click()}
+            >
+              <Upload className="mr-1.5 h-4 w-4" />
+              Enviar foto
+            </Button>
+            <input
+              ref={cameraInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={(e) => onFile(e.target.files?.[0])}
+            />
+            <input
+              ref={galleryInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => onFile(e.target.files?.[0])}
+            />
+          </div>
           {foto && (
             <img
               src={foto}
