@@ -31,6 +31,10 @@ function ensureSchema() {
       acao_corretiva TEXT NOT NULL,
       foto TEXT,
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+    CREATE TABLE IF NOT EXISTS auditores (
+      id UUID PRIMARY KEY,
+      nome TEXT NOT NULL UNIQUE
     )
   `);
 }

@@ -22,13 +22,19 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, FileText, Trash2, Printer, Camera, Upload } from "lucide-react";
+import { Plus, FileText, Trash2, Printer, Camera, Upload, Users } from "lucide-react";
 import {
   type Evidencia,
   createEvidencia,
   deleteEvidencia,
   listEvidencias,
 } from "@/lib/evidencias";
+import {
+  type Auditor,
+  createAuditor,
+  deleteAuditor,
+  listAuditores,
+} from "@/lib/auditores";
 import nutrimilhoLogo from "@/assets/nutrimilho-logo.png";
 
 export const Route = createFileRoute("/")({
@@ -68,10 +74,16 @@ function Index() {
   const queryClient = useQueryClient();
   const [filterSetor, setFilterSetor] = useState<string>("todos");
   const [open, setOpen] = useState(false);
+  const [manageAuditoresOpen, setManageAuditoresOpen] = useState(false);
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ["evidencias"],
     queryFn: () => listEvidencias(),
+  });
+
+  const { data: auditores = [] } = useQuery({
+    queryKey: ["auditores"],
+    queryFn: () => listAuditores(),
   });
 
   const createMutation = useMutation({
@@ -82,6 +94,16 @@ function Index() {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteEvidencia({ data: { id } }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["evidencias"] }),
+  });
+
+  const createAuditorMutation = useMutation({
+    mutationFn: (auditor: Auditor) => createAuditor({ data: auditor }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["auditores"] }),
+  });
+
+  const deleteAuditorMutation = useMutation({
+    mutationFn: (id: string) => deleteAuditor({ data: { id } }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["auditores"] }),
   });
 
   const grouped = useMemo(() => {
@@ -114,6 +136,12 @@ function Index() {
   function removeItem(id: string) {
     deleteMutation.mutate(id);
   }
+  function addAuditor(nome: string) {
+    createAuditorMutation.mutate({ id: crypto.randomUUID(), nome });
+  }
+  function removeAuditor(id: string) {
+    deleteAuditorMutation.mutate(id);
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background print:bg-white">
@@ -138,13 +166,28 @@ function Index() {
             </Select>
           </div>
           <div className="ml-auto flex gap-2">
+            <Dialog open={manageAuditoresOpen} onOpenChange={setManageAuditoresOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <Users className="h-4 w-4" /> Auditores
+                </Button>
+              </DialogTrigger>
+              <ManageAuditoresDialog
+                auditores={auditores}
+                onAdd={addAuditor}
+                onRemove={removeAuditor}
+              />
+            </Dialog>
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
                 <Button className="gap-2 bg-brand text-brand-foreground hover:bg-brand/90">
                   <Plus className="h-4 w-4" /> Nova evidência
                 </Button>
               </DialogTrigger>
-              <NewEvidenceDialog onAdd={(e) => { addItem(e); setOpen(false); }} />
+              <NewEvidenceDialog
+                auditores={auditores}
+                onAdd={(e) => { addItem(e); setOpen(false); }}
+              />
             </Dialog>
           </div>
         </div>
@@ -364,7 +407,91 @@ function EvidenceRow({
   );
 }
 
-function NewEvidenceDialog({ onAdd }: { onAdd: (e: Evidencia) => void }) {
+function ManageAuditoresDialog({
+  auditores,
+  onAdd,
+  onRemove,
+}: {
+  auditores: Auditor[];
+  onAdd: (nome: string) => void;
+  onRemove: (id: string) => void;
+}) {
+  const [nome, setNome] = useState("");
+
+  function submit() {
+    const trimmed = nome.trim();
+    if (!trimmed) return;
+    onAdd(trimmed);
+    setNome("");
+  }
+
+  return (
+    <DialogContent className="max-w-md">
+      <DialogHeader>
+        <DialogTitle>Auditores</DialogTitle>
+        <DialogDescription>
+          Cadastre os auditores que poderão ser selecionados ao registrar uma
+          evidência.
+        </DialogDescription>
+      </DialogHeader>
+
+      <div className="grid gap-4 py-2">
+        <div className="flex gap-2">
+          <Input
+            placeholder="Nome do auditor"
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                submit();
+              }
+            }}
+          />
+          <Button
+            onClick={submit}
+            className="shrink-0 bg-brand text-brand-foreground hover:bg-brand/90"
+          >
+            <Plus className="h-4 w-4" /> Adicionar
+          </Button>
+        </div>
+
+        {auditores.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Nenhum auditor cadastrado ainda.
+          </p>
+        ) : (
+          <ul className="divide-y-2 divide-border rounded-md border-2 border-border">
+            {auditores.map((a) => (
+              <li
+                key={a.id}
+                className="flex items-center justify-between px-3 py-2 text-sm"
+              >
+                {a.nome}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onRemove(a.id)}
+                  className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </DialogContent>
+  );
+}
+
+function NewEvidenceDialog({
+  auditores,
+  onAdd,
+}: {
+  auditores: Auditor[];
+  onAdd: (e: Evidencia) => void;
+}) {
   const [data, setData] = useState(todayISO());
   const [turno, setTurno] = useState("Turno A");
   const [auditor, setAuditor] = useState("");
@@ -433,11 +560,24 @@ function NewEvidenceDialog({ onAdd }: { onAdd: (e: Evidencia) => void }) {
           </div>
           <div className="grid gap-1.5">
             <Label>Auditor</Label>
-            <Input
-              placeholder="Ex: ANA"
-              value={auditor}
-              onChange={(e) => setAuditor(e.target.value)}
-            />
+            <Select value={auditor} onValueChange={setAuditor}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o auditor" />
+              </SelectTrigger>
+              <SelectContent>
+                {auditores.length === 0 ? (
+                  <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                    Nenhum auditor cadastrado
+                  </div>
+                ) : (
+                  auditores.map((a) => (
+                    <SelectItem key={a.id} value={a.nome}>
+                      {a.nome}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
