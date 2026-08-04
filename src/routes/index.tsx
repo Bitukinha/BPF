@@ -637,14 +637,14 @@ function NewEvidenceDialog({
               type="file"
               accept="image/*"
               capture="environment"
-              className="hidden"
+              className="sr-only"
               onChange={(e) => onFile(e.target.files?.[0])}
             />
             <input
               ref={galleryInputRef}
               type="file"
               accept="image/*"
-              className="hidden"
+              className="sr-only"
               onChange={(e) => onFile(e.target.files?.[0])}
             />
           </div>
